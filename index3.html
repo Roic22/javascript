@@ -1,0 +1,110 @@
+<html>
+some text here!
+
+<canvas id="gameCanvas" width="800" height="650"></canvas>
+<script>
+    var canvas;
+    var canvasContext;
+    var ballX = 50;
+    var ballY = 50;
+    var ballspeedX = 10;
+    var ballspeedY = 4;
+    var Player1Y = 250;
+    var Player2Y = 250;
+    const Player = 100;
+    const thickness = 10;
+    var Player1score = 0;
+    var Player2score = 0;
+
+    function mousepos(evt) {
+        var rect = canvas.getBoundingClientRect();
+        var root = document.documentElement;
+        var mouseX = evt.clientX - rect.left - root.scrollLeft;
+        var mouseY = evt.clientY - rect.top - root.scrollTop;
+        return {
+            x: mouseX, y:mouseY
+        };
+    }
+    function ballreset() {
+        ballspeedX = -ballspeedX
+        ballX = canvas.width/2;
+        ballY = canvas.height/2;
+    }
+    window.onload = function() {
+        canvas = document.getElementById('gameCanvas');
+        canvasContext = canvas.getContext('2d');
+        var framesPerSecond = 30;
+        setInterval(function() {
+         moveEverything();
+        drawEverything();
+        }, 1000/framesPerSecond );
+
+        canvas.addEventListener('mousemove', function(evt) {
+            var mousePos = mousepos(evt);
+            Player1Y = mousePos.y-(Player/2);
+            Player2Y = mousePos.y-(Player/2);
+        })
+    }
+    function movement() {
+        var Player2YCenter = Player2Y + (Player/2);
+        if(Player2YCenter < ballY - 35) {
+            Player2Y += 6;
+        } else if(Player2YCenter > ballY + 35) {
+            Player2Y -= 6;
+        } 
+    }
+    function moveEverything() {
+        movement();
+        ballX += ballspeedX;
+        ballY += ballspeedY;
+
+        if(ballX < 0) {
+            if(ballY > Player1Y && ballY < Player1Y+Player) {
+                ballspeedX = -ballspeedX;
+            } else {
+                ballreset();
+                Player2score += 1
+            }
+            }
+        if(ballX > canvas.width) {
+            if(ballY > Player2Y && ballY < Player2Y+Player) {
+                ballspeedX = -ballspeedX;
+            } else {
+                ballreset();
+                Player1score += 1;
+            }
+        }
+
+        if(ballY < 0) {
+            ballspeedY = -ballspeedY;
+        }
+
+        if(ballY > canvas.height) {
+            ballspeedY = -ballspeedY;
+        }
+    }
+    function drawEverything(){
+        console.log(ballX)
+        //fill the screen black
+        colorRect(0,0,canvas.width,canvas.height, 'black');
+        //left player paddle
+        colorRect(0,Player1Y,thickness,Player, 'white'); 
+          //right player paddle
+          colorRect(canvas.width-thickness,Player2Y,10,Player, 'white'); 
+        //draw the ball
+        colorCircle(ballX,ballY,10,'white');
+        canvasContext.fillText(Player1score, 100, 100);
+        canvasContext.fillText(Player2score, canvas.width-100, 100);
+        }
+    function colorRect(leftX, topY, width, height, color) {
+        canvasContext.fillStyle = color;
+        canvasContext.fillRect(leftX,topY,width,height);
+    }
+    function colorCircle(centerX, centerY,radius, drawColor) {
+        canvasContext.fillStyle = drawColor;
+        canvasContext.beginPath();
+        canvasContext.arc(centerX,centerY,radius,0,Math.PI*2,true);
+        canvasContext.fill();
+    }
+</script>
+</html>
